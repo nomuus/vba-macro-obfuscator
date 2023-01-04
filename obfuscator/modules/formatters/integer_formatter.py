@@ -1,4 +1,5 @@
 import random
+from collections import deque
 from pygments.formatter import Formatter
 from pygments.token import Token
 
@@ -8,10 +9,38 @@ class IntegerFormatter(Formatter):
     ADD_RATE = 0.7
     SUB_RATE = 0.7
 
+    def __init__(self):
+        super().__init__()
+        self.excluded_statements = [
+            'On Error GoTo 0',  # Example fail: On Error GoTo (0 - 0)
+        ]
+        self._statement = deque()
+
+    def _build_statement(self, ttype, value):
+        if ttype == Token.Keyword:
+            self._statement.append(value)
+        elif self._statement and ttype == Token.Text.Whitespace:
+            self._statement.append(value)
+        elif self._statement and ttype == Token.Literal.Number.Integer:
+            self._statement.append(value)
+        else:
+            self._statement.clear()
+        
+        return ''.join(self._statement)
+    
+    def _exclude_statement(self, ttype, value):
+        statement = self._build_statement(ttype, value)
+        if statement and statement in self.excluded_statements:
+            return True
+        return False
+
     def format(self, tokensource, outfile):
         for ttype, value in tokensource:
             if ttype == Token.Literal.Number.Integer:
-                outfile.write(self.xor_transformation(value))
+                if self._exclude_statement(ttype, value):
+                    outfile.write(value)
+                else:
+                    outfile.write(self.xor_transformation(value))
             else:
                 outfile.write(value)
 
