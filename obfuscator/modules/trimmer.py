@@ -19,7 +19,7 @@ class Trimmer:
         self.script.code = re.sub(r'^\s*', '', self.script.code, flags=re.MULTILINE)
 
     def remove_empty_lines(self):
-        self.script.code = re.sub(r'^\n', '', self.script.code, flags=re.MULTILINE)
+        self.script.code = re.sub(r'^\r?\n', '', self.script.code, flags=re.MULTILINE)
 
     def remove_comments(self):
         formatter = CommentFormatter()
