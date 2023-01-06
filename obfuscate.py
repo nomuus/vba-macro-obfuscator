@@ -15,6 +15,10 @@ def main():
                         help='path of the file containing the VBA script to obfuscate.')
     parser.add_argument('output_file', type=str, action='store',
                         help='path of the file to store the result.')
+    parser.add_argument('--use-random-words', dest='use_random_words', action='store_true', default=False,
+                        help='use random words instead of random values (sourced from file system and http)')
+    parser.add_argument('--use-unique-values', dest='use_unique_values', action='store_true', default=False,
+                        help='randomly generated values should be unique')
     args = parser.parse_args()
 
     try:
@@ -24,7 +28,7 @@ def main():
         print(e)
         sys.exit(1)
 
-    obfuscator = Obfuscator(script)
+    obfuscator = Obfuscator(script, use_random_words=args.use_random_words, use_unique_values=args.use_unique_values)
     obfuscator.obfuscate()
 
     try:
